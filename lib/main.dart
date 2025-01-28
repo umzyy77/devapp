@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-const Color primaryColor= Colors.deepPurple;
+
+// Définir des couleurs globales
+const Color primaryColor = Colors.blue; // Vous pouvez changer en red ou une couleur personnalisée
+const Color accentColor = Colors.black; // Utilisé pour l'icône lorsque le compteur est négatif
 
 void main() {
   runApp(const MyApp());
@@ -8,47 +11,25 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Compteur App',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(seedColor: primaryColor),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const MyHomePage(title: 'Compteur App'),
+        '/second': (context) => const SecondPage(),
+      },
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
 
   final String title;
 
@@ -61,55 +42,92 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _incrementCounter() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
       _counter++;
+    });
+  }
+
+  void _decrementCounter() {
+    setState(() {
+      _counter--;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pushNamed(context, '/');
+          },
+          child: const Icon(Icons.home), // Icône pour rediriger à la page d'accueil
+        ),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const Text(
-              'You have pushed the button this many times:',
+              'Vous avez appuyé sur le bouton autant de fois :',
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '$_counter',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                Icon(
+                  Icons.favorite,
+                  color: _counter < 0 ? accentColor : Colors.red, // Changement de couleur
+                  size: 50,
+                  semanticLabel: 'Icône favoris',
+                ),
+              ],
             ),
-            const Icon(
-              Icons.favorite,
-              color: Colors.red,
-              size: 50,
-              semanticLabel: 'Icône favroris',
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.remove),
+                  onPressed: _decrementCounter,
+                ),
+                const SizedBox(width: 20),
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  onPressed: _incrementCounter,
+                ),
+              ],
             ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(
-            Icons.favorite,
-            color: Colors.red,
-            size: 50,
-            semanticLabel: 'Icône favoris',
-        ),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+        onPressed: () {
+          Navigator.pushNamed(context, '/second');
+        },
+        tooltip: 'Page Suivante',
+        child: const Icon(Icons.arrow_forward),
+      ),
+    );
+  }
+}
+
+class SecondPage extends StatelessWidget {
+  const SecondPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Deuxième Page'),
+      ),
+      body: const Center(
+        child: Text('Bienvenue sur la deuxième page !'),
+      ),
     );
   }
 }
