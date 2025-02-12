@@ -9,31 +9,41 @@ class GameView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gameViewModel = Provider.of<GameViewModel>(context);
+    const double cellSize = 40.0; // Taille fixe des cases
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Démineur'),
-        backgroundColor: Colors.blueGrey, // Améliore la visibilité
+        backgroundColor: Colors.blueGrey,
         actions: [
           IconButton(
             icon: Icon(
               gameViewModel.isFlagMode ? Icons.flag : Icons.touch_app,
-              color: gameViewModel.isFlagMode ? Colors.yellow : Colors.white, // Rendre le bouton visible
-              size: 30, // Agrandir l'icône
+              color: gameViewModel.isFlagMode ? Colors.yellow : Colors.white,
+              size: 30,
             ),
             onPressed: () => gameViewModel.toggleFlagMode(),
-            tooltip: "Mode Drapeau", // Ajout d'une info-bulle
+            tooltip: "Mode Drapeau",
           ),
         ],
       ),
       body: Center(
-        child: Table(
-          children: List.generate(
-            gameViewModel.nbLine,
-                (x) => TableRow(
-              children: List.generate(
-                gameViewModel.nbCol,
-                    (y) => MapButton(x: x, y: y),
+        child: SizedBox(
+          width: gameViewModel.nbCol * cellSize,
+          height: gameViewModel.nbLine * cellSize,
+          child: Table(
+            defaultColumnWidth: FixedColumnWidth(cellSize),
+            children: List.generate(
+              gameViewModel.nbLine,
+                  (x) => TableRow(
+                children: List.generate(
+                  gameViewModel.nbCol,
+                      (y) => SizedBox(
+                    width: cellSize,
+                    height: cellSize,
+                    child: MapButton(x: x, y: y),
+                  ),
+                ),
               ),
             ),
           ),
