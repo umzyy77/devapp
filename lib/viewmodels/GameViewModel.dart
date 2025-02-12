@@ -35,14 +35,14 @@ class GameViewModel extends ChangeNotifier {
 
   Widget getIcon(CaseModel caseModel) {
     if (caseModel.hasFlag) {
-      return Image.asset('assets/images/flag.png', height: 40);
+      return Image.asset('assets/images/Minesweeper_flag.svg.png', height: 40);
     } else if (!caseModel.hidden) {
       if (caseModel.hasBomb) {
         return caseModel.hasExploded
             ? Image.asset('assets/images/exploded_bomb.png', height: 40)
             : Image.asset('assets/images/bomb.png', height: 40);
       } else {
-        return Image.asset('assets/images/${caseModel.number ?? 0}.png', height: 40);
+        return Image.asset('assets/images/Minesweeper_${caseModel.number ?? 0}.svg.png', height: 40);
       }
     }
     return Container();
