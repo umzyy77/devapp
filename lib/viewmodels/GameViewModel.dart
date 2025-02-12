@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 class GameViewModel extends ChangeNotifier {
   final MapModel _mapModel;
+  bool isFlagMode = false;
 
   GameViewModel(this._mapModel);
 
@@ -13,24 +14,35 @@ class GameViewModel extends ChangeNotifier {
   int get nbCol => _mapModel.nbCol;
   int get nbBomb => _mapModel.nbBomb;
 
+  void toggleFlagMode() {
+    isFlagMode = !isFlagMode;
+    notifyListeners();
+  }
+
   void generateMap() {
     _mapModel.generateMap();
     notifyListeners();
   }
 
   void click(int x, int y) {
-    if (!_mapModel.cases[x][y].hasFlag) {
-      _mapModel.reveal(x, y);
-      if (_mapModel.cases[x][y].hasBomb) {
-        _mapModel.revealAll();
+    if (isFlagMode) {
+      onLongPress(x, y);
+    } else {
+      if (!_mapModel.cases[x][y].hasFlag) {
+        _mapModel.reveal(x, y);
+        if (_mapModel.cases[x][y].hasBomb) {
+          _mapModel.revealAll();
+        }
+        notifyListeners();
       }
-      notifyListeners();
     }
   }
 
   void onLongPress(int x, int y) {
-    _mapModel.toggleFlag(x, y);
-    notifyListeners();
+    if (_mapModel.cases[x][y].hidden) {
+      _mapModel.toggleFlag(x, y);
+      notifyListeners();
+    }
   }
 
   Widget getIcon(CaseModel caseModel) {
