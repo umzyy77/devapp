@@ -1,85 +1,73 @@
 import 'dart:math';
-
-class CaseModel {
-  bool hidden;
-  bool hasBomb;
-  bool hasExploded;
-  bool hasFlag;
-  int number;
-
-  CaseModel({
-    this.hidden = true,
-    this.hasBomb = false,
-    this.hasExploded = false,
-    this.hasFlag = false,
-    this.number = 0,
-  });
-}
+import 'CaseModel.dart';
 
 class MapModel {
-  int nbLine;
-  int nbCol;
-  int nbBomb;
-  List<List<CaseModel>> cases;
+  int nbLine = 0;
+  int nbCol = 0;
+  int nbBomb = 0;
+  List<List<CaseModel>> _cases = [];
 
-  MapModel({
-    required this.nbLine,
-    required this.nbCol,
-    required this.nbBomb,
-  }) : cases = List.generate(
-    nbLine,
-        (_) => List.generate(nbCol, (_) => CaseModel()),
-  );
+  MapModel(this.nbLine, this.nbCol, this.nbBomb) {
+    generateMap();
+  }
 
   void initCases() {
-    cases = List.generate(
+    _cases = List.generate(
       nbLine,
           (_) => List.generate(nbCol, (_) => CaseModel()),
     );
   }
 
   void initBomb() {
-    Random random = Random();
     int bombsPlaced = 0;
+    Random random = Random();
     while (bombsPlaced < nbBomb) {
       int x = random.nextInt(nbLine);
       int y = random.nextInt(nbCol);
-      if (!cases[x][y].hasBomb) {
-        cases[x][y].hasBomb = true;
+      if (!_cases[x][y].hasBomb) {
+        _cases[x][y].hasBomb = true;
         bombsPlaced++;
       }
     }
   }
 
-  CaseModel? tryGetCase(int x, int y) {
-    if (x >= 0 && x < nbLine && y >= 0 && y < nbCol) {
-      return cases[x][y];
+  void initNumbers() {
+    for (int i = 0; i < nbLine; i++) {
+      for (int j = 0; j < nbCol; j++) {
+        if (!_cases[i][j].hasBomb) {
+          _cases[i][j].number = computeNumber(i, j);
+        }
+      }
     }
-    return null;
   }
 
   int computeNumber(int x, int y) {
     int count = 0;
-    for (int dx = -1; dx <= 1; dx++) {
-      for (int dy = -1; dy <= 1; dy++) {
-        if (dx == 0 && dy == 0) continue;
-        CaseModel? neighbor = tryGetCase(x + dx, y + dy);
-        if (neighbor != null && neighbor.hasBomb) {
-          count++;
-        }
+    List<CaseModel?> neighbors = getNeighbors(x, y);
+    for (var neighbor in neighbors) {
+      if (neighbor != null && neighbor.hasBomb) {
+        count++;
       }
     }
     return count;
   }
 
-  void initNumbers() {
-    for (int x = 0; x < nbLine; x++) {
-      for (int y = 0; y < nbCol; y++) {
-        if (!cases[x][y].hasBomb) {
-          cases[x][y].number = computeNumber(x, y);
-        }
+  List<CaseModel?> getNeighbors(int x, int y) {
+    List<CaseModel?> neighbors = [];
+    for (int i = -1; i <= 1; i++) {
+      for (int j = -1; j <= 1; j++) {
+        if (i == 0 && j == 0) continue;
+        neighbors.add(tryGetCase(x + i, y + j));
       }
     }
+    return neighbors;
+  }
+
+  CaseModel? tryGetCase(int x, int y) {
+    if (x >= 0 && x < nbLine && y >= 0 && y < nbCol) {
+      return _cases[x][y];
+    }
+    return null;
   }
 
   void generateMap() {
@@ -89,17 +77,16 @@ class MapModel {
   }
 
   void reveal(int x, int y) {
-    CaseModel? cell = tryGetCase(x, y);
-    if (cell != null && cell.hidden && !cell.hasFlag) {
-      cell.hidden = false;
-      if (cell.hasBomb) {
-        cell.hasExploded = true;
+    if (_cases[x][y].hidden) {
+      _cases[x][y].hidden = false;
+      if (_cases[x][y].hasBomb) {
+        explode(x, y);
       }
     }
   }
 
   void revealAll() {
-    for (var row in cases) {
+    for (var row in _cases) {
       for (var cell in row) {
         cell.hidden = false;
       }
@@ -107,26 +94,15 @@ class MapModel {
   }
 
   void explode(int x, int y) {
-    CaseModel? cell = tryGetCase(x, y);
-    if (cell != null) {
-      cell.hasExploded = true;
-      revealAll();
-    }
+    _cases[x][y].hasExploded = true;
+    revealAll();
   }
 
   void toggleFlag(int x, int y) {
-    CaseModel? cell = tryGetCase(x, y);
-    if (cell != null && cell.hidden) {
-      cell.hasFlag = !cell.hasFlag;
+    if (_cases[x][y].hidden) {
+      _cases[x][y].hasFlag = !_cases[x][y].hasFlag;
     }
   }
 
-  CaseModel? getCase(int x, int y) => tryGetCase(x, y);
-
-  bool isHidden(int x, int y) => tryGetCase(x, y)?.hidden ?? false;
-  bool isBomb(int x, int y) => tryGetCase(x, y)?.hasBomb ?? false;
-  bool isExploded(int x, int y) => tryGetCase(x, y)?.hasExploded ?? false;
-  bool hasFlag(int x, int y) => tryGetCase(x, y)?.hasFlag ?? false;
-  int getNumber(int x, int y) => tryGetCase(x, y)?.number ?? 0;
-
+  List<List<CaseModel>> get cases => _cases;
 }
