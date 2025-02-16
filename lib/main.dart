@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'models/MapModel.dart';
 import 'viewmodels/GameViewModel.dart';
-import 'view/GameView.dart';
+import 'models/MapModel.dart';
+import 'view/HomeView.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,16 +11,13 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => GameViewModel(MapModel(10, 10, 15)),
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Démineur',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: const GameView(),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Démineur',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
       ),
+      home: const HomeView(),
     );
   }
 }

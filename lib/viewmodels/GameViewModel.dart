@@ -6,13 +6,15 @@ import 'package:flutter/material.dart';
 class GameViewModel extends ChangeNotifier {
   final MapModel _mapModel;
   bool isFlagMode = false;
+  int _bombsRemaining;
 
-  GameViewModel(this._mapModel);
+  GameViewModel(this._mapModel) : _bombsRemaining = _mapModel.nbBomb;
 
   List<List<CaseModel>> get cases => _mapModel.cases;
   int get nbLine => _mapModel.nbLine;
   int get nbCol => _mapModel.nbCol;
   int get nbBomb => _mapModel.nbBomb;
+  int get bombsRemaining => _bombsRemaining;
 
   void toggleFlagMode() {
     isFlagMode = !isFlagMode;
@@ -21,6 +23,7 @@ class GameViewModel extends ChangeNotifier {
 
   void generateMap() {
     _mapModel.generateMap();
+    _bombsRemaining = _mapModel.nbBomb; // Réinitialiser le nombre de bombes restantes
     notifyListeners();
   }
 
@@ -41,6 +44,8 @@ class GameViewModel extends ChangeNotifier {
   void onLongPress(int x, int y) {
     if (_mapModel.cases[x][y].hidden) {
       _mapModel.toggleFlag(x, y);
+      // Ajuster le nombre de bombes restantes
+      _bombsRemaining += _mapModel.cases[x][y].hasFlag ? -1 : 1;
       notifyListeners();
     }
   }
